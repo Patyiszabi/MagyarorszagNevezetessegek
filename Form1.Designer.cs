@@ -2,15 +2,8 @@
 {
     partial class MagyarorszagNevezetessegekForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.headerPanel = new System.Windows.Forms.Panel();
@@ -43,6 +32,7 @@
             this.helyszinValueLabel = new System.Windows.Forms.Label();
             this.turizmus_tipusValueLabel = new System.Windows.Forms.Label();
             this.exitButton = new System.Windows.Forms.Button();
+            this.detailsButton = new System.Windows.Forms.Button();
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -75,25 +65,32 @@
             // 
             // filterComboBox
             // 
+            this.filterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.filterComboBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.filterComboBox.FormattingEnabled = true;
             this.filterComboBox.Location = new System.Drawing.Point(978, 90);
             this.filterComboBox.Name = "filterComboBox";
-            this.filterComboBox.Size = new System.Drawing.Size(210, 21);
+            this.filterComboBox.Size = new System.Drawing.Size(210, 23);
             this.filterComboBox.TabIndex = 2;
+            this.filterComboBox.SelectedIndexChanged += new System.EventHandler(this.filterComboBox_SelectedIndexChanged);
             // 
             // listBox1
             // 
+            this.listBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 15;
             this.listBox1.Location = new System.Drawing.Point(24, 130);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(300, 407);
+            this.listBox1.Size = new System.Drawing.Size(300, 394);
             this.listBox1.TabIndex = 3;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // pictureBox1
             // 
             this.pictureBox1.Location = new System.Drawing.Point(888, 130);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(300, 200);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 4;
             this.pictureBox1.TabStop = false;
             // 
@@ -188,12 +185,27 @@
             this.exitButton.TabIndex = 7;
             this.exitButton.Text = "Kilépés";
             this.exitButton.UseVisualStyleBackColor = false;
+            this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
+            // 
+            // detailsButton
+            // 
+            this.detailsButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.detailsButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.detailsButton.ForeColor = System.Drawing.Color.White;
+            this.detailsButton.Location = new System.Drawing.Point(888, 342);
+            this.detailsButton.Name = "detailsButton";
+            this.detailsButton.Size = new System.Drawing.Size(300, 35);
+            this.detailsButton.TabIndex = 8;
+            this.detailsButton.Text = "További részletek";
+            this.detailsButton.UseVisualStyleBackColor = false;
+            this.detailsButton.Click += new System.EventHandler(this.detailsButton_Click);
             // 
             // MagyarorszagNevezetessegekForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 600);
+            this.Controls.Add(this.detailsButton);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.turizmus_tipusValueLabel);
             this.Controls.Add(this.helyszinValueLabel);
@@ -235,6 +247,6 @@
         private System.Windows.Forms.Label helyszinValueLabel;
         private System.Windows.Forms.Label turizmus_tipusValueLabel;
         private System.Windows.Forms.Button exitButton;
+        private System.Windows.Forms.Button detailsButton;
     }
 }
-
