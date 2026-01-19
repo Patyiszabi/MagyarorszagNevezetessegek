@@ -60,8 +60,7 @@ namespace MagyarorszagNevezetessegek
 
             if (!File.Exists(dataFilePath))
             {
-                MessageBox.Show("Hiányzik az adatfájl: " + dataFilePath + Environment.NewLine +
-                                "Állítsa a fájlnál: Copy to Output Directory = Copy if newer.",
+                MessageBox.Show("Hiányzik az adatfájl: " + dataFilePath + Environment.NewLine,
                                 "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
