@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -15,9 +16,9 @@ namespace MagyarorszagNevezetessegek
         {
             public string Nev { get; set; }
             public string Leiras { get; set; }
-            public string Helyszin {get; set; }
-            public string TurizmusTipus {get; set; }
-            public string KepFajlNev {get; set; }
+            public string Helyszin { get; set; }
+            public string TurizmusTipus { get; set; }
+            public string KepFajlNev { get; set; }
 
             public Nevezetesseg(string nev, string leiras, string helyszin, string turizmusTipus, string kepFajlNev)
             {
@@ -34,13 +35,10 @@ namespace MagyarorszagNevezetessegek
 
         private readonly string dataFilePath = "magyarorszag_nevezetessegek.txt";
 
+
+        //cache a kepekhez
         private readonly Dictionary<string, byte[]> kepCache = new Dictionary<string, byte[]>();
         private static readonly HttpClient http = new HttpClient();
-
-       
-
-        // asnyc 
-        private int kepKeresSorszam = 0;
 
         public MagyarorszagNevezetessegekForm()
         {
@@ -72,9 +70,13 @@ namespace MagyarorszagNevezetessegek
                 string sor = sorok[i].Trim();
                 if (sor.Length == 0) continue;
 
+
+                // max 5 resz
                 string[] p = sor.Split(new char[] { '&' }, 5);
 
                 int n = p.Length;
+
+                // ha utolso elem ures
                 if (n > 0 && p[n - 1].Trim().Length == 0) n--;
 
                 if (n < 5) continue;
@@ -93,36 +95,97 @@ namespace MagyarorszagNevezetessegek
             }
         }
 
+        // seged fuggveny
+        private string ekezeteltavolitas(string szoveg)
+        {
+            if (string.IsNullOrEmpty(szoveg))
+                return "";
+
+            string normal = szoveg.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in normal)
+            {
+                if (Char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+
 
         private void Szures()
         {
             string keres = searchTextBox.Text.Trim();
+            string keresClean = ekezeteltavolitas(keres).ToLower();
+            string[] szavak = keresClean.Split(new char[] { ' ' }, StringSplitOptions.None);
 
             szurtLista.Clear();
+
             for (int i = 0; i < nevezetessegek.Count; i++)
             {
                 Nevezetesseg n = nevezetessegek[i];
 
-                if (keres.Length == 0)
+                if (keresClean.Length == 0)
                 {
                     szurtLista.Add(n);
                 }
+
+                // nev vagy kategoria alapu kereses
                 else
                 {
-                    if (n.Nev != null && n.Nev.IndexOf(keres, StringComparison.OrdinalIgnoreCase) >= 0)
+                    string nevClean = ekezeteltavolitas(n.Nev).ToLower();
+                    string tipusClean = ekezeteltavolitas(n.TurizmusTipus).ToLower();
+
+                    bool nameMatch = true;
+                    bool categoryMatch = true;
+
+                    foreach (string szo in szavak)
+                    {
+                        if (string.IsNullOrWhiteSpace(szo))
+                            continue;
+
+                        if (!nevClean.Contains(szo))
+                        {
+                            nameMatch = false;
+                            break;
+                        }
+                    }
+
+                    foreach (string szo in szavak)
+                    {
+                        if (string.IsNullOrWhiteSpace(szo))
+                            continue;
+
+                        if (!tipusClean.Contains(szo))
+                        {
+                            categoryMatch = false;
+                            break;
+                        }
+                    }
+
+                    if (nameMatch || categoryMatch)
                     {
                         szurtLista.Add(n);
                     }
                 }
             }
 
+
+            // szures utani rendezés
             int mode = filterComboBox.SelectedIndex;
             szurtLista.Sort((a, b) =>
             {
-                if (mode == 1) return string.Compare(a.Helyszin, b.Helyszin, StringComparison.OrdinalIgnoreCase);
-                if (mode == 2) return string.Compare(a.TurizmusTipus, b.TurizmusTipus, StringComparison.OrdinalIgnoreCase);
+                if (mode == 1)
+                    return string.Compare(a.Helyszin, b.Helyszin, StringComparison.OrdinalIgnoreCase);
+                if (mode == 2)
+                    return string.Compare(a.TurizmusTipus, b.TurizmusTipus, StringComparison.OrdinalIgnoreCase);
                 return string.Compare(a.Nev, b.Nev, StringComparison.OrdinalIgnoreCase);
             });
+
+            //lista frissites
 
             listBox1.BeginUpdate();
             listBox1.Items.Clear();
@@ -133,14 +196,12 @@ namespace MagyarorszagNevezetessegek
             listBox1.EndUpdate();
 
             if (listBox1.Items.Count > 0)
-            {
                 listBox1.SelectedIndex = 0;
-            }
             else
-            {
                 kartyaUrites("Nincs találat.");
-            }
         }
+
+
 
         private void kartyaUrites(string uzenet)
         {
@@ -152,7 +213,7 @@ namespace MagyarorszagNevezetessegek
             kepTorles();
         }
 
-     
+
 
         private void kepTorles()
         {
@@ -164,6 +225,7 @@ namespace MagyarorszagNevezetessegek
             }
         }
 
+        // lista elem valasztas
         private async void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             int idx = listBox1.SelectedIndex;
@@ -188,7 +250,8 @@ namespace MagyarorszagNevezetessegek
             return s.Substring(0, maxHossz) + "...";
         }
 
-
+        // asnyc 
+        private int kepKeresSorszam = 0;
         private async Task kepBetoltes(string url)
         {
             kepKeresSorszam++;
@@ -224,6 +287,7 @@ namespace MagyarorszagNevezetessegek
 
                 if (mostani != kepKeresSorszam) return;
 
+                // kepbetoltes
                 using (var ms = new MemoryStream(data))
                 {
                     Image img = Image.FromStream(ms);
@@ -253,6 +317,7 @@ namespace MagyarorszagNevezetessegek
             int idx = listBox1.SelectedIndex;
             if (idx < 0 || idx >= szurtLista.Count) return;
 
+            // uj form
             Nevezetesseg n = szurtLista[idx];
             NevezetessegReszletekForm f = new NevezetessegReszletekForm(this, n.Nev, n.Leiras, n.Helyszin, n.TurizmusTipus, n.KepFajlNev);
             f.Show();
